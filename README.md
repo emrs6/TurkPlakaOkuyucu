@@ -24,7 +24,7 @@ Türk plakalarını algılar okur ve yazı halinde çıktı verir
   4) Plakanın olduğu yerler kırpılır
   5) Kırpılan resimde işleme yapılır (Siyah beyaz yapma ve Thresh):
   
-    ![image](https://github.com/emrs6/TurkPlakaOkuyucu/assets/65279699/b4d03317-2611-4620-8ace-8403c560efe5)
+    ![Screenshot](plate.png)
 
   6) Kırpılmış plaka üzerinde tesseract-ocr çalıştırılır
   7) Çıkan sonuçta filtreleme yapılır:<br/>
