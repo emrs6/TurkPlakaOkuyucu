@@ -139,20 +139,52 @@ while True:
                 return formatted_string
 
             
+            
             #def validate_data(data):
-                
+            def kontrol_et(veri):
+                # Verinin uzunluğunu kontrol et
+                if len(veri) < 3:
+                    return False
+
+                # İlk karakter sayı mı diye kontrol et
+                if not veri[0].isdigit():
+                    return False
+
+                # Son karakter sayı mı diye kontrol et
+                if not veri[-1].isdigit():
+                    return False
+
+                # Harf ve sayıları sayacak değişkenler
+                harf_sayisi = 0
+                sayi_sayisi = 0
+
+                # Verinin karakterlerini kontrol et
+                for karakter in veri[1:-1]:
+                    if karakter.isalpha():
+                        harf_sayisi += 1
+                    elif karakter.isdigit():
+                        sayi_sayisi += 1
+                    else:
+                        return False  # Geçersiz karakter bulundu
+
+                # En az bir harf ve bir sayı olmalı
+                if harf_sayisi == 0 or sayi_sayisi == 0:
+                    return False
+
+                # Eğer yukarıdaki kontrolleri geçtiyse, doğru bir kombinasyon olduğunu belirt
+                return True
 
                     
             dezenlenmis = format_string(remove_space)
 
             remove_space2 = dezenlenmis.replace(" ", "")
-            #dogrulama= validate_data(remove_space2)
+            dogrulama = kontrol_et(remove_space2)
 
             print(plate_text)
             print(remove_space)
             print(dezenlenmis)
             print(remove_space2)
-            #print(dogrulama)
+            print(dogrulama)
 
         else:
             print("No license plate detected")
