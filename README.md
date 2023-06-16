@@ -9,7 +9,7 @@ Türk plakalarını algılar okur ve yazı halinde çıktı verir
   -TesseractOCR ile yazıyı çıkartır<br/>
 
 # Gerekli kütüphaneler:
-  -numpy<br/>
+  -os<br/>
   -cv2<br/>
   -pytesseract<br/>
   -unidecode<br/>
