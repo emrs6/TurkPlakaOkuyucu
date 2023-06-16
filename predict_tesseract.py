@@ -1,6 +1,6 @@
-#import os
+import os
 from ultralytics import YOLO
-import numpy as np
+#import numpy as np
 from io import BytesIO
 import cv2
 #import easyocr
@@ -16,9 +16,15 @@ model = YOLO("best.pt")
 offset = 10
 text_final = ""
 
-input_dir = 'C:/Users/etnae/Downloads/automatic-number-plate-recognition-python-master/data'
+ainput_dir = os.path.join("data")
 
-data_path = "C:/Users/etnae/Downloads/automatic-number-plate-recognition-python-master/data/001.jpg" 
+adata_path = os.path.join("data", "001.jpg") 
+
+current_dir = os.getcwd()
+
+input_dir = os.path.join(current_dir, ainput_dir)
+data_path = os.path.join(current_dir, adata_path)
+
 while True:
     cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1280)
     cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 720)
