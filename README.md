@@ -28,9 +28,9 @@ Türk plakalarını algılar okur ve yazı halinde çıktı verir
 
   6) Kırpılmış plaka üzerinde tesseract-ocr çalıştırılır
   7) Çıkan sonuçta filtreleme yapılır:
-    A) Yanlışlıkla okunan noktalama işaretleri silinir
-    B) Çıkan kombinasyonun -sayı-harf-sayı- şeklinde olduğu kontrol edilir:
-       Örnek: B16ACL82 şeklinde okunan plaka 16ACL82 şekline dönüştürülür
+    A) Yanlışlıkla okunan noktalama işaretleri silinir<br/>
+    B) Çıkan kombinasyonun -sayı-harf-sayı- şeklinde olduğu kontrol edilir:<br/>
+       Örnek: B16ACL82 şeklinde okunan plaka 16ACL82 şekline dönüştürülür<br/>
     C) Plakadakı boşluklar silinir
   8) Çıktı terminale yazdırılır
   
