@@ -4,17 +4,18 @@ Türk plakalarını algılar okur ve yazı halinde çıktı verir
 *Bu proje kişisel bir projedir ve tamamen ben tarafından hazırlanmıştır.*
 
 # İşlemler :
-  -Kendi yapyığım 600 plakalık ufak bir YOLOV8n kütüphanesi ile plakaları tanımlar
-  -Plaka bölümünü kırpar
-  -TesseractOCR ile yazıyı çıkartır
+  -Kendi yapyığım 600 plakalık ufak bir YOLOV8n kütüphanesi ile plakaları tanımlar<br/>
+  -Plaka bölümünü kırpar<br/>
+  -TesseractOCR ile yazıyı çıkartır<br/>
 
 # Gerekli kütüphaneler:
-  -numpy
-  -cv2
-  -pytesseract
-  -unidecode
-  -io
-  -ultralytics
+  -numpy<br/>
+  -cv2<br/>
+  -pytesseract<br/>
+  -unidecode<br/>
+  -io<br/>
+  -ultralytics<br/>
+>   Model https://drive.google.com/file/d/1CNQLLDu-SFhca1vGdjzTmwQoXcpq9ppQ/view?usp=sharing<br/>
 
 # Çalışma Mantığı ve detaylar:
   *Bilgisayarınızın hızına göre değişiklik gösteren bir hıza sahiptir*
