@@ -27,11 +27,11 @@ Türk plakalarını algılar okur ve yazı halinde çıktı verir
     ![image](https://github.com/emrs6/TurkPlakaOkuyucu/assets/65279699/b4d03317-2611-4620-8ace-8403c560efe5)
 
   6) Kırpılmış plaka üzerinde tesseract-ocr çalıştırılır
-  7) Çıkan sonuçta filtreleme yapılır:
+  7) Çıkan sonuçta filtreleme yapılır:<br/>
     A) Yanlışlıkla okunan noktalama işaretleri silinir<br/>
     B) Çıkan kombinasyonun -sayı-harf-sayı- şeklinde olduğu kontrol edilir:<br/>
        Örnek: B16ACL82 şeklinde okunan plaka 16ACL82 şekline dönüştürülür<br/>
-    C) Plakadakı boşluklar silinir
+    C) Plakadakı boşluklar silinir<br/>
   8) Çıktı terminale yazdırılır
   
 # Daha sonra yapılacaklar:
