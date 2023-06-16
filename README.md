@@ -22,9 +22,9 @@ Türk plakalarını algılar okur ve yazı halinde çıktı verir
   2) Fotoğrafta YOLO modülü ile plaka aranır
   3) Bulunan plakanın konumu alınır
   4) Plakanın olduğu yerler kırpılır
-  5) Kırpılan resimde işleme yapılır (Siyah beyaz yapma ve Thresh):
+  5) Kırpılan resimde işlem yapılır (Siyah beyaz yapma ve Thresh):
   
-    ![Screenshot](plate.png)
+    <img src="https://github.com/emrs6/TurkPlakaOkuyucu/blob/main/plate.png" alt="Plate" title="işlem yapılmış plaka">
 
   6) Kırpılmış plaka üzerinde tesseract-ocr çalıştırılır
   7) Çıkan sonuçta filtreleme yapılır:<br/>
