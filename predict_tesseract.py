@@ -1,20 +1,23 @@
 import os
+import time
+
+import serial
 from ultralytics import YOLO
-#import numpy as np
-from io import BytesIO
 import cv2
-#import easyocr
 import pytesseract
 pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
 import string
-#import re
 from unidecode import unidecode
 
+arduino_port = "COM4"  # Arduino'nun bağlı olduğu seri portu belirtin
+baud_rate = 9600
+arduino = serial.Serial(arduino_port, baud_rate, timeout=1)
 
 cap = cv2.VideoCapture(0)
 model = YOLO("best.pt")
-offset = 10
+offset = 17 #plakanın sınırlarını sol taraftan daraltmak için kullanılan değişken
 text_final = ""
+cache = ""
 
 ainput_dir = os.path.join("data")
 
@@ -39,15 +42,13 @@ while True:
 
     H, W, _ = img.shape
     
-    blob = cv2.dnn.blobFromImage(img, 1 / 255, (416, 416), (0, 0, 0), True)
+    #blob = cv2.dnn.blobFromImage(img, 1 / 255, (416, 416), (0, 0, 0), True)
     
     results = model.predict(source=data_path, show=False)
 
     
     bboxes = []
-    class_ids = []
-    scores = []
-    
+
     for result in results:
         if len(result.boxes.xywh) > 0:
             bbox = result.boxes.xywh[0]
@@ -64,35 +65,39 @@ while True:
         
         xc, yc, w, h = bbox
         
-        xc -= offset/2
+        #xc -= offset/2
         
-        w += 2 * offset
-        h += 2 * offset
+        #w += 2 * offset
+        #h += 2 * offset
 
-        license_plate = img[int(yc - (h / 2)):int(yc + (h / 2)), int(xc - (w / 2)):int(xc + (w / 2)), :].copy()
+        license_plate = img[int(yc - (h / 2)) + 4:int(yc + (h / 2)), int(xc - (w / 2)) + offset:int(xc + (w / 2)) - 4, :].copy()
+
+
+
+
         if license_plate is not None:
             
-
-            #img = cv2.rectangle(img,
-            #                    (int(xc - (w / 2)), int(yc - (h / 2))),
-            #                    (int(xc + (w / 2)), int(yc + (h / 2))),
-            #                    (0, 255, 0),
-            #                    15)
-
             license_plate_gray = cv2.cvtColor(license_plate, cv2.COLOR_BGR2GRAY)
 
-            
+            Ha, Wa = license_plate_gray.shape
 
-            _, license_plate_thresh = cv2.threshold(license_plate_gray, 65, 255, cv2.THRESH_BINARY_INV)
+            d = cv2.resize(license_plate_gray, (Wa*10, Ha*10))
 
+            blurred_image = cv2.GaussianBlur(d, (9,9), 0)
+
+            histogram_e = cv2.equalizeHist(blurred_image)
+
+            Ha, Wa = d.shape
             
-            #output = reader.readtext(license_plate_thresh)
-            cv2.imshow("License Plate", license_plate_thresh)
-            text_final = ""
+            g = cv2.resize(histogram_e, (int(Wa/10), int(Ha/10)))
+
+            _, license_plate_thresh = cv2.threshold(license_plate_gray, 55, 255, cv2.THRESH_BINARY_INV)
+            
+            #cv2.imshow("License Plate", license_plate_thresh)
 
             data = pytesseract.image_to_data(license_plate_thresh, output_type='data.frame')
 
-            filtered_data = data[data['conf'] > 40]
+            filtered_data = data[data['conf'] > 20]
 
             plate_text = ' '.join(filtered_data['text'].values)
 
@@ -180,12 +185,28 @@ while True:
             remove_space2 = dezenlenmis.replace(" ", "")
             dogrulama = kontrol_et(remove_space2)
 
-            print(plate_text)
-            print(remove_space)
-            print(dezenlenmis)
-            print(remove_space2)
-            print(dogrulama)
+            
+            if dogrulama == True:
+                if remove_space2 == cache:
+                    print("Aynı plaka")
+                    print(remove_space2)
+                else:
+                    print("Plaka doğrulandı")
+                    text_final = remove_space2
+                    print(plate_text)
+                    print(remove_space)
+                    print(dezenlenmis)
+                    print(remove_space2)
+                    print(dogrulama)
+                    print(text_final)
+                    if text_final == "16RAM14":
+                        arduino.open()
+                        arduino.write(b"1")
+                        time.sleep(0.5) 
+                        arduino.write(b"0")
+                    cache = text_final
 
+            arduino.close() 
         else:
             print("No license plate detected")
 
