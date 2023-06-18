@@ -12,6 +12,22 @@ from unidecode import unidecode
 arduino_port = "COM4"  # Arduino'nun bağlı olduğu seri portu belirtin
 baud_rate = 9600
 arduino = serial.Serial(arduino_port, baud_rate, timeout=1)
+try:
+    if arduino.is_open:
+        print("Seri port zaten açık")
+        arduino.close()  # Seri portu kapat
+    else:
+        print("Seri port açıldı")
+    
+    arduino.open()  # Seri portu tekrar aç
+    if arduino.is_open:
+        print("Seri port tekrar açıldı")
+        # Arduino ile iletişime geçmek için diğer işlemleri burada gerçekleştirin
+        arduino.write(b"1")  # Arduino'ya komut gönder
+    else:
+        print("Seri port açılamadı")
+except serial.SerialException as e:
+    print(f"Seri port açılırken hata oluştu: {e}")
 
 cap = cv2.VideoCapture(0)
 model = YOLO("best.pt")
@@ -40,7 +56,9 @@ while True:
     
     img = cv2.imread(data_path)
 
-    H, W, _ = img.shape
+    if img is None:
+        print("Görüntü yüklenemedi")
+        continue  # Bir sonraki döngüye geç
     
     #blob = cv2.dnn.blobFromImage(img, 1 / 255, (416, 416), (0, 0, 0), True)
     
@@ -99,7 +117,7 @@ while True:
 
             filtered_data = data[data['conf'] > 20]
 
-            plate_text = ' '.join(filtered_data['text'].values)
+            plate_text = ' '.join(str(value) for value in filtered_data['text'].values)
 
             latin = unidecode(plate_text)
 
@@ -199,14 +217,14 @@ while True:
                     print(remove_space2)
                     print(dogrulama)
                     print(text_final)
-                    if text_final == "16RAM14":
-                        arduino.open()
+                    if text_final == "16RAM14" or "16SBL55":
+                        
                         arduino.write(b"1")
-                        time.sleep(0.5) 
+                        time.sleep(1) 
                         arduino.write(b"0")
                     cache = text_final
 
-            arduino.close() 
+            
         else:
             print("No license plate detected")
 
