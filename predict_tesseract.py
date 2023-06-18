@@ -1,48 +1,31 @@
 import os
 import time
-
-import serial
 from ultralytics import YOLO
 import cv2
 import pytesseract
 pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
 import string
 from unidecode import unidecode
+import matplotlib.pyplot as plt
+import pyfirmata
 
-arduino_port = "COM4"  # Arduino'nun bağlı olduğu seri portu belirtin
-baud_rate = 9600
-arduino = serial.Serial(arduino_port, baud_rate, timeout=1)
-try:
-    if arduino.is_open:
-        print("Seri port zaten açık")
-        arduino.close()  # Seri portu kapat
-    else:
-        print("Seri port açıldı")
-    
-    arduino.open()  # Seri portu tekrar aç
-    if arduino.is_open:
-        print("Seri port tekrar açıldı")
-        # Arduino ile iletişime geçmek için diğer işlemleri burada gerçekleştirin
-        arduino.write(b"1")  # Arduino'ya komut gönder
-    else:
-        print("Seri port açılamadı")
-except serial.SerialException as e:
-    print(f"Seri port açılırken hata oluştu: {e}")
+print("kütüphaneler yüklendi")
 
+board = pyfirmata.Arduino('COM7')
 cap = cv2.VideoCapture(0)
 model = YOLO("best.pt")
 offset = 17 #plakanın sınırlarını sol taraftan daraltmak için kullanılan değişken
 text_final = ""
 cache = ""
-
 ainput_dir = os.path.join("data")
-
+aocr_path = os.path.join("data", "ocr.jpg") 
 adata_path = os.path.join("data", "001.jpg") 
-
 current_dir = os.getcwd()
-
 input_dir = os.path.join(current_dir, ainput_dir)
+ocr_dir = os.path.join(current_dir, aocr_path)
 data_path = os.path.join(current_dir, adata_path)
+
+print("parametreler tanımlandı")
 
 while True:
     cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1280)
@@ -73,8 +56,9 @@ while True:
             xc, yc, w, h = bbox.tolist()
             bbox_confidence = result.boxes.conf[0]
             bboxes.append(bbox)
+            print("plaka değişkenleri atandı")
         else:
-            print("No license plate detected")
+            print("plaka algılanamadı")
             continue
 
     #reader = easyocr.Reader(['en'])
@@ -88,7 +72,7 @@ while True:
         #w += 2 * offset
         #h += 2 * offset
 
-        license_plate = img[int(yc - (h / 2)) + 4:int(yc + (h / 2)), int(xc - (w / 2)) + offset:int(xc + (w / 2)) - 4, :].copy()
+        license_plate = img[int(yc - (h / 2)) + 3:int(yc + (h / 2)), int(xc - (w / 2)) + offset:int(xc + (w / 2)) - 4, :].copy()
 
 
 
@@ -101,19 +85,26 @@ while True:
 
             d = cv2.resize(license_plate_gray, (Wa*10, Ha*10))
 
-            blurred_image = cv2.GaussianBlur(d, (9,9), 0)
+            blurred_image = cv2.GaussianBlur(d, (3,3), 0)
 
             histogram_e = cv2.equalizeHist(blurred_image)
 
-            Ha, Wa = d.shape
-            
-            g = cv2.resize(histogram_e, (int(Wa/10), int(Ha/10)))
+            #Ha, Wa = d.shape
+                
+            #g = cv2.resize(histogram_e, (int(Wa/10), int(Ha/10)))
 
-            _, license_plate_thresh = cv2.threshold(license_plate_gray, 55, 255, cv2.THRESH_BINARY_INV)
+            _, license_plate_thresh = cv2.threshold(histogram_e, 55, 255, cv2.THRESH_BINARY_INV)
+            
+            cv2.imwrite(ocr_dir, license_plate_thresh)
+
+            print("resim işlendi")
+
+            #plt.imshow(license_plate_thresh, cmap='gray')
             
             #cv2.imshow("License Plate", license_plate_thresh)
+            ocrread = cv2.imread(ocr_dir)
 
-            data = pytesseract.image_to_data(license_plate_thresh, output_type='data.frame')
+            data = pytesseract.image_to_data(ocrread, output_type='data.frame')
 
             filtered_data = data[data['conf'] > 20]
 
@@ -208,6 +199,12 @@ while True:
                 if remove_space2 == cache:
                     print("Aynı plaka")
                     print(remove_space2)
+                    if text_final == "16RAM14" or "16SBL55":
+                        board.digital[13].write(1)
+                        time.sleep(1)
+                        board.digital[13].write(0)
+                    else:
+                        board.digital[13].write(0)
                 else:
                     print("Plaka doğrulandı")
                     text_final = remove_space2
@@ -218,10 +215,11 @@ while True:
                     print(dogrulama)
                     print(text_final)
                     if text_final == "16RAM14" or "16SBL55":
-                        
-                        arduino.write(b"1")
-                        time.sleep(1) 
-                        arduino.write(b"0")
+                        board.digital[13].write(1)
+                        time.sleep(1)
+                        board.digital[13].write(0)
+                    else:
+                        board.digital[13].write(0)
                     cache = text_final
 
             
