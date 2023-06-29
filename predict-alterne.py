@@ -1,12 +1,40 @@
+import os
+import re
+import string
+import cv2
+import easyocr
+import numpy as np
+from ultralytics import YOLO
+from unidecode import unidecode
+
+print("kütüphaneler yüklendi")
+nigh_threshold = 50
+cap = cv2.VideoCapture(0)
+model = YOLO("best.pt")
+text_final = ""
+cache = ""
+ainput_dir = os.path.join("data")
+athresh_path = os.path.join("data", "thresh.jpg")
+aocr_path = os.path.join("data", "ocr.jpg")
+adata_path = os.path.join("data", "001.jpg")
+current_dir = os.getcwd()
+input_dir = os.path.join(current_dir, ainput_dir)
+thresh_dir = os.path.join(current_dir, athresh_path)
+ocr_dir = os.path.join(current_dir, aocr_path)
+data_path = os.path.join(current_dir, adata_path)
+cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1280)
+cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 720)
+reader = easyocr.Reader(['en'])
+print("parametreler tanımlandı")
+
 
 # Definitions
 
 def process(imgraw):
-    Ha, Wa = imgraw.shape[:2]
-    img = cv2.resize(imgraw, (Wa*16, Ha*16))
-    return(img)
+    ha, wa = imgraw.shape[:2]
+    img = cv2.resize(imgraw, (wa * 16, ha * 16))
+    return img
 
-    
 
 def format_string(input_string):
     components = []
@@ -78,19 +106,20 @@ def kontrol_et(veri):
     # Eğer yukarıdaki kontrolleri geçtiyse, doğru bir kombinasyon olduğunu belirt
     return True
 
-#=====================================================================#
+
+# =====================================================================#
 # Kamera ile foto çek
 
 while True:
     ret, frame = cap.read()
     cv2.imwrite(data_path, frame)
     img = cv2.imread(data_path)
-    #img = cv2.imread('C:/Users/etnae/Downloads/plaka/20230614_202136.jpg')
-    #C:\Users\etnae\Downloads\plaka
+    # img = cv2.imread('C:/Users/etnae/Downloads/plaka/20230614_202136.jpg')
+    # C:\Users\etnae\Downloads\plaka
     if img is None:
         print("Görüntü yüklenemedi")
         continue  # Bir sonraki döngüye geç
-    #aşağıdaki işlem gece görüşü 
+    # aşağıdaki işlem gece görüşü
     # blue_channel = img[:, :, 2]
     # blue_ratio = np.sum(blue_channel) / (720 * 1280)
     # print(blue_ratio)
@@ -107,21 +136,18 @@ while True:
             bbox_confidence = result.boxes.conf[0]
             bboxes.append(bbox)
             print("plaka değişkenleri atandı")
-        
-            
+
             license_plate = None
-        
+
             for bbox_, bbox in enumerate(bboxes):
                 xc, yc, w, h = bbox
-                offset = 10
                 w = w + 10
                 h = h + 10
                 offset = int(w * 0.1)
-                license_plate = img[int(yc - (h / 2)):int(yc + (h / 2)), int(xc - (w / 2)) + offset:int(xc + (w / 2)), :].copy()
+                license_plate = img[int(yc - (h / 2)):int(yc + (h / 2)), int(xc - (w / 2)) + offset:int(xc + (w / 2)),
+                                :].copy()
                 cv2.imwrite(input_dir + "/yolo.jpg", license_plate)
 
-            
-        
             imgraw = cv2.imread(input_dir + "/yolo.jpg")
             if imgraw is None:
                 print("Görüntü yüklenemedi")
@@ -129,64 +155,58 @@ while True:
 
             img = process(imgraw)
 
-            
-            plt.imshow(cv2.cvtColor(img, cv2.COLOR_BGR2RGB))
-            plt.show()
-
-            
             license_plate_cropped = img
             Hcache, Wacache = license_plate_cropped.shape[:2]
-            license_plate_cropped = cv2.resize(license_plate_cropped, (Wacache//3, Hcache//3))
-            
+            license_plate_cropped = cv2.resize(license_plate_cropped, (Wacache // 3, Hcache // 3))
+
             license_plate_cropped = cv2.cvtColor(license_plate_cropped, cv2.COLOR_BGR2GRAY)
             kernel = np.array([[0, -1, 0],
-                                [-1, 5, -1],
-                                [0, -1, 0]])
+                               [-1, 5, -1],
+                               [0, -1, 0]])
             license_plate_cropped = cv2.filter2D(license_plate_cropped, ddepth=-1, kernel=kernel)
-            #ret2,license_plate_cropped = cv2.threshold(license_plate_cropped,0,255,cv2.THRESH_BINARY+cv2.THRESH_OTSU)
-            
-            #plt.imshow(cv2.cvtColor(img, cv2.COLOR_BGR2RGB))
-            #plt.show()
-            
-            #plt.imshow(cv2.cvtColor(license_plate_cropped, cv2.COLOR_BGR2RGB))
-            #plt.show()
-        
-            
+            # ret2,license_plate_cropped = cv2.threshold(license_plate_cropped,0,255,cv2.THRESH_BINARY+cv2.THRESH_OTSU)
+
+            # plt.imshow(cv2.cvtColor(img, cv2.COLOR_BGR2RGB))
+            # plt.show()
+
+            # plt.imshow(cv2.cvtColor(license_plate_cropped, cv2.COLOR_BGR2RGB))
+            # plt.show()
+
             print("okunuyor")
-                
+
             data = reader.readtext(license_plate_cropped)
 
             data = sorted(data, key=lambda x: x[0][0][0])
             sonuclar = [item[1] for item in data]
 
-            if len(sonuclar)>0:
-    
+            if len(sonuclar) > 0:
+                for a in sonuclar:
+                    a.translate(str.maketrans('', '', string.punctuation))
                 veriler = []
-                if len(sonuclar)<3:
-                    sonuc = sonuc.translate(str.maketrans('', '', string.punctuation))
+                if len(sonuclar) < 3:
+
                     for sonuc in sonuclar:
                         parcalar = sonuc.split()  # Boşluklara göre veriyi parçalara ayır
-                        parcalar = parcalar = re.findall('[A-Za-z]+|\d+', sonuc)  # Separate numbers and words starting with uppercase letters
-                        veriler.extend(parcalar)  
+                        parcalar = re.findall('[A-Za-z]+|\d+', parcalar)
+                        veriler.extend(parcalar)
                         sonuclar = veriler
-            
-                if len(sonuclar)==3:
-                     veriler = sonuclar
-                    
-              
+
+                if len(sonuclar) == 3:
+                    veriler = sonuclar
+
                 if not veriler[0].isdigit() and len(veriler) != 0:
                     veriler.remove(veriler[0])
-                    
+
                 if len(veriler) == 3:
                     alan_kodu = veriler[0]
                     kpv = veriler[1]
                     son2rakam = veriler[2]
-                    
-                      # kişiselleştirilmiş plaka verisi
+
+                    # kişiselleştirilmiş plaka verisi
                     print(alan_kodu)
                     print(kpv)
                     print(son2rakam)
-                
+
                     alan_kodu = unidecode(alan_kodu)
                     alan_kodu = alan_kodu.translate(str.maketrans('', '', string.punctuation))
                     alan_kodu = alan_kodu.replace(" ", "")
@@ -201,17 +221,17 @@ while True:
                     alan_kodu = alan_kodu.replace("s", "5")
                     alan_kodu = alan_kodu.replace("L", "4")
                     alan_kodu = alan_kodu.replace("l", "1")
-                
+
                     kpv = unidecode(kpv)
                     kpv = kpv.translate(str.maketrans('', '', string.punctuation))
                     kpv = kpv.replace(" ", "")
-                    kpv = kpv.replace("6","G")
+                    kpv = kpv.replace("6", "G")
                     kpv = kpv.replace("2", "Z")
                     kpv = kpv.replace("1", "I")
                     kpv = kpv.replace("0", "O")
                     kpv = kpv.replace("5", "S")
                     kpv = kpv.replace("4", "L")
-                    
+
                     son2rakam = unidecode(son2rakam)
                     son2rakam = son2rakam.translate(str.maketrans('', '', string.punctuation))
                     son2rakam = son2rakam.replace(" ", "")
@@ -226,11 +246,31 @@ while True:
                     son2rakam = son2rakam.replace("L", "4")
                     son2rakam = son2rakam.replace("l", "1")
                     plaka = alan_kodu + kpv + son2rakam
-                
-                        
-                    print(plaka)
-                    
 
+                    print(plaka)
+
+                    plaka = plaka.upper()
+                    dezenlenmis = format_string(plaka)
+                    remove_space2 = dezenlenmis.replace(" ", "")
+                    dogrulama = kontrol_et(remove_space2)
+
+                    if dogrulama:
+                        if remove_space2 == cache:
+                            print("Aynı plaka")
+                            print(remove_space2)
+                        else:
+                            print("Plaka doğrulandı")
+                            text_final = remove_space2
+                            print(text_final)
+                            if text_final == "16RAM14" or "16SBL55":
+                                # board.digital[13].write(1)
+                                # time.sleep(1)
+                                # board.digital[13].write(0)
+                                print("bişiler doğru")
+                            else:
+                                print("bişiler yanlış")
+                                # board.digital[13].write(0)
+                            cache = text_final
         else:
             print("plaka algılanamadı")
             continue
