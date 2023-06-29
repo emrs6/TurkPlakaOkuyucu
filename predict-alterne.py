@@ -3,39 +3,9 @@
 
 def process(imgraw):
     Ha, Wa = imgraw.shape[:2]
-    if Wa<175 :
-        img = cv2.resize(imgraw, (Wa*16, Ha*16))
-        gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-        gurultuazalt = cv2.bilateralFilter(gray, 9, 75, 75)
-        ret, thresh = cv2.threshold(gurultuazalt, 65, 255, 0)
-        kernel = np.ones((5,5),np.uint8)
-        erosion = cv2.erode(thresh,kernel,iterations = 5)
-        return(erosion, img)
-    if 175<=Wa<=185 :
-        img = cv2.resize(imgraw, (Wa*15, Ha*15))
-        gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-        gurultuazalt = cv2.bilateralFilter(gray, 9, 75, 75)
-        ret, thresh = cv2.threshold(gurultuazalt, 65, 255, 0)
-        kernel = np.ones((5,5),np.uint8)
-        erosion = cv2.erode(thresh,kernel,iterations = 8)
-        return(erosion, img)
-    if 200>=Wa>185 :
-        img = cv2.resize(imgraw, (Wa*13, Ha*13))
-        gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-        gurultuazalt = cv2.bilateralFilter(gray, 9, 75, 75)
-        ret, thresh = cv2.threshold(gurultuazalt, 65, 255, 0)
-        kernel = np.ones((5,5),np.uint8)
-        erosion = cv2.erode(thresh,kernel,iterations = 10)
-        return(erosion, img)
-    if Wa>200 :
-        img = cv2.resize(imgraw, (Wa*10, Ha*10))
-        gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-        gurultuazalt = cv2.bilateralFilter(gray, 9, 75, 75)
-        ret, thresh = cv2.threshold(gurultuazalt, 65, 255, 0)
-        kernel = np.ones((5,5),np.uint8)
-        erosion = cv2.erode(thresh,kernel,iterations = 13)
-        return(erosion, img)
-    
+    img = cv2.resize(imgraw, (Wa*16, Ha*16))
+    return(img)
+
     
 
 def format_string(input_string):
@@ -143,9 +113,9 @@ while True:
         
             for bbox_, bbox in enumerate(bboxes):
                 xc, yc, w, h = bbox
-                offset = 8
-                w = w + 15
-                h = h + 15
+                offset = 10
+                w = w + 10
+                h = h + 10
                 offset = int(w * 0.1)
                 license_plate = img[int(yc - (h / 2)):int(yc + (h / 2)), int(xc - (w / 2)) + offset:int(xc + (w / 2)), :].copy()
                 cv2.imwrite(input_dir + "/yolo.jpg", license_plate)
@@ -156,15 +126,14 @@ while True:
             if imgraw is None:
                 print("Görüntü yüklenemedi")
                 continue
-            erosion = process(imgraw)[0]
-            img = process(imgraw)[1]
-        
+
+            img = process(imgraw)
+
+            
             plt.imshow(cv2.cvtColor(img, cv2.COLOR_BGR2RGB))
             plt.show()
-            
-            plt.imshow(cv2.cvtColor(erosion, cv2.COLOR_BGR2RGB))
-            plt.show()
 
+            
             license_plate_cropped = img
             Hcache, Wacache = license_plate_cropped.shape[:2]
             license_plate_cropped = cv2.resize(license_plate_cropped, (Wacache//3, Hcache//3))
@@ -176,40 +145,36 @@ while True:
             license_plate_cropped = cv2.filter2D(license_plate_cropped, ddepth=-1, kernel=kernel)
             #ret2,license_plate_cropped = cv2.threshold(license_plate_cropped,0,255,cv2.THRESH_BINARY+cv2.THRESH_OTSU)
             
-            plt.imshow(cv2.cvtColor(img, cv2.COLOR_BGR2RGB))
-            plt.show()
+            #plt.imshow(cv2.cvtColor(img, cv2.COLOR_BGR2RGB))
+            #plt.show()
             
-            plt.imshow(cv2.cvtColor(license_plate_cropped, cv2.COLOR_BGR2RGB))
-            plt.show()
+            #plt.imshow(cv2.cvtColor(license_plate_cropped, cv2.COLOR_BGR2RGB))
+            #plt.show()
         
             
             print("okunuyor")
                 
             data = reader.readtext(license_plate_cropped)
-            print(data)
+
             data = sorted(data, key=lambda x: x[0][0][0])
             sonuclar = [item[1] for item in data]
-            print(sonuclar)
+
             if len(sonuclar)>0:
-                
+    
                 veriler = []
                 if len(sonuclar)<3:
+                    sonuc = sonuc.translate(str.maketrans('', '', string.punctuation))
                     for sonuc in sonuclar:
                         parcalar = sonuc.split()  # Boşluklara göre veriyi parçalara ayır
-                        veriler.extend(parcalar)
-                else:
-                    veriler = sonuclar
+                        parcalar = parcalar = re.findall('[A-Za-z]+|\d+', sonuc)  # Separate numbers and words starting with uppercase letters
+                        veriler.extend(parcalar)  
+                        sonuclar = veriler
+            
+                if len(sonuclar)==3:
+                     veriler = sonuclar
                     
-                if len(sonuclar)<3:
-                    for sonuc in sonuclar:
-                        sonuc = sonuc.translate(str.maketrans('', '', string.punctuation))
-                        
-                        parcalar = re.findall(r'\d+|[A-Z][^A-Z]*', sonuc)  # Sayıları ve büyük harfle başlayan kelimeleri ayır
-                        veriler.extend(parcalar)  # Parçaları sonuçlara ekle
-                else:
-                    veriler = sonuclar
-                    
-                if not veriler[0].isdigit() and not len(veriler)==0:
+              
+                if not veriler[0].isdigit() and len(veriler) != 0:
                     veriler.remove(veriler[0])
                     
                 if len(veriler) == 3:
