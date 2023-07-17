@@ -38,3 +38,7 @@ Türk plakalarını algılar okur ve yazı halinde çıktı verir
 
 # Yapılabilecek şeyler
   -Custom OCR
+
+
+#Uzaktan kontrol linki:
+  https://maker.ifttt.com/trigger/door_trigger/json/with/key/45MZeHwhX454RLs1GGu6d
