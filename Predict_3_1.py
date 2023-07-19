@@ -7,6 +7,8 @@ import numpy as np
 import pandas as pd
 from ultralytics import YOLO
 import requests
+from picamera2 import Picamera2
+from libcamera import controls
 
 print("kütüphaneler yüklendi")
 mylcd = I2C_LCD_driver.lcd()
@@ -15,9 +17,14 @@ mylcd.lcd_display_string("lbr done.", 1)
 
 nigh_threshold = 50
 # board = pyfirmata.Arduino('COM7')
-cap = cv2.VideoCapture(0)
+#cap = cv2.VideoCapture(0)
+picam2 = Picamera2()
+config = picam2.create_still_configuration(lores={"size": (4608, 2592)}, display="lores")
+picam2.configure(config)
+picam2.set_controls({"AfMode": controls.AfModeEnum.Continuous})
+picam2.start()
 
-cap.set(cv2.CAP_PROP_BUFFERSIZE, 1)  # Arabelleğe alma işlemini devre dışı bırak
+#cap.set(cv2.CAP_PROP_BUFFERSIZE, 1)  # Arabelleğe alma işlemini devre dışı bırak
 
 model = YOLO("/home/emre/best.pt")
 car_model = YOLO("yolov8n.pt")
@@ -34,8 +41,8 @@ input_dir = os.path.join(current_dir, ainput_dir)
 thresh_dir = os.path.join(current_dir, athresh_path)
 ocr_dir = os.path.join(current_dir, aocr_path)
 data_path = os.path.join(current_dir, adata_path)
-cap.set(cv2.CAP_PROP_FRAME_WIDTH, 4608)
-cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 2592)
+#cap.set(cv2.CAP_PROP_FRAME_WIDTH, 4608)
+#cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 2592)
 reader = easyocr.Reader(['en'])
 print("parametreler tanımlandı")
 mylcd.lcd_clear()
@@ -179,8 +186,10 @@ def kontrol_et(veri):
 # =====================================================================#
 # Kamera ile foto çek
 while True:
-    ret, frame = cap.read()
-    cv2.imwrite("/home/emre/Desktop/test.jpg", frame)
+    #ret, frame = cap.read()
+    picam2.capture_file("predict.jpg")
+    
+    frame = cv2.imread("predict.jpg")
     #img = cv2.imread(data_path)
     
     if frame is None:
