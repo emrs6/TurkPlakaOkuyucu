@@ -6,12 +6,12 @@ import easyocr
 import numpy as np
 import pandas as pd
 from ultralytics import YOLO
+import requests
 
 print("kütüphaneler yüklendi")
 mylcd = I2C_LCD_driver.lcd()
 mylcd.lcd_clear()
 mylcd.lcd_display_string("lbr done.", 1)
-
 
 nigh_threshold = 50
 # board = pyfirmata.Arduino('COM7')
@@ -34,8 +34,8 @@ input_dir = os.path.join(current_dir, ainput_dir)
 thresh_dir = os.path.join(current_dir, athresh_path)
 ocr_dir = os.path.join(current_dir, aocr_path)
 data_path = os.path.join(current_dir, adata_path)
-cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1280)
-cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 720)
+cap.set(cv2.CAP_PROP_FRAME_WIDTH, 4608)
+cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 2592)
 reader = easyocr.Reader(['en'])
 print("parametreler tanımlandı")
 mylcd.lcd_clear()
@@ -43,6 +43,22 @@ mylcd.lcd_display_string("prm done.", 1)
 
 
 # Definitions
+
+def trigger_webhook(webhook_url):
+    try:
+        response = requests.post(webhook_url)
+        if response.status_code == 200:
+            print("Webhook successfully triggered.")
+            print("Response content:")
+            print(response.text)  # Yanıttaki içeriği yazdır
+        else:
+            print(f"Failed to trigger webhook. Status code: {response.status_code}")
+            print("Response content:")
+            print(response.text)  # Yanıttaki içeriği yazdır
+    except requests.exceptions.RequestException as e:
+        print(f"An error occurred while sending the webhook request: {e}")
+
+
 # işleme modülü 2.0
 def process2_1(imgraw):
     Ha, Wa = imgraw.shape[:2]
@@ -577,13 +593,13 @@ while True:
                                 print("Plaka Kombinasyonu doğru")
                                 print("Tahmini plaka:")
                                 print(formatted_plate)
-                                if formatted_plate != cache:
-                                    mylcd.lcd_clear()
+                                mylcd.lcd_clear()
                                     
-                                    mylcd.lcd_display_string(formatted_plate, 1)
-                                    
+                                mylcd.lcd_display_string(formatted_plate, 1)
+                                if formatted_plate != cache and formatted_plate == "16ACJ100":
+                                    webhook_url = "https://maker.ifttt.com/trigger/door_trigger/json/with/key/45MZeHwhX454RLs1GGu6d"
+                                    trigger_webhook(webhook_url)
                                     cache = formatted_plate
-                                    
                             else:
                                 print("doğrulanamadı")
                                 mylcd.lcd_clear()
