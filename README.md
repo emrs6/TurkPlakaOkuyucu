@@ -2,19 +2,25 @@
 Türk plakalarını algılar okur ve yazı halinde çıktı verir 
 
 *Bu proje kişisel bir projedir ve tamamen ben tarafından hazırlanmıştır.*
+# Ana dosya (Windows):
+[Predict_Windows_1.0.py](https://github.com/emrs6/TurkPlakaOkuyucu/blob/main/Predict_Windows_1.0.py)
 
 # İşlemler :
   -Kendi yapyığım 600 plakalık ufak bir YOLOV8n kütüphanesi ile plakaları tanımlar<br/>
   -Plaka bölümünü kırpar<br/>
-  -TesseractOCR ile yazıyı çıkartır<br/>
+  -TesseractOCR / EasyOCR ile yazıyı çıkartır<br/>
 
-# Gerekli kütüphaneler:
+# Gerekli kütüphaneler (Winows sürümü için):
   -os<br/>
+  -time<br/>
   -cv2<br/>
-  -pytesseract<br/>
-  -unidecode<br/>
-  -io<br/>
+  -easyocr<br/>
+  -numpy<br/>
+  -pandas<br/>
   -ultralytics<br/>
+  -requests<br/>
+  -string<br/>
+  -matplotlib<br/>
 >   Model https://drive.google.com/file/d/1CNQLLDu-SFhca1vGdjzTmwQoXcpq9ppQ/view?usp=sharing<br/>
 
 # Çalışma Mantığı ve detaylar:
@@ -35,9 +41,6 @@ Türk plakalarını algılar okur ve yazı halinde çıktı verir
 # Daha sonra yapılacaklar:
   1) SQL database ile bağlantı kurulup plakanın sahaya giriş saati ve çıkış saati yazdırılacak
   2) Whitelist ile sadece belli plakalar geldiğinde otomatik kapı açılacak
-
-# Yapılabilecek şeyler
-  -Custom OCR
 
 
 #Uzaktan kontrol linki:
