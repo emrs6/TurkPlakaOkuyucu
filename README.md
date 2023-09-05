@@ -11,6 +11,7 @@ Türk plakalarını algılar okur ve yazı halinde çıktı verir
   -TesseractOCR / EasyOCR ile yazıyı çıkartır<br/>
 
 # Gerekli kütüphaneler (Winows sürümü için):
+  -PyThorch(CUDA)
   -os<br/>
   -time<br/>
   -cv2<br/>
