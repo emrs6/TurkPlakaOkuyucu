@@ -27,22 +27,15 @@ Türk plakalarını algılar okur ve yazı halinde çıktı verir
 # Çalışma Mantığı ve detaylar:
   *Bilgisayarınızın hızına göre değişiklik gösteren bir hıza sahiptir*
   1) Kamera üzerinden bir fotoğraf çekilir
-  2) Fotoğrafta YOLO modülü ile plaka aranır
-  3) Bulunan plakanın konumu alınır
-  4) Plakanın olduğu yerler kırpılır
-  5) Kırpılan resimde işlem yapılır (Siyah beyaz yapma ve Thresh):
-  6) Kırpılmış plaka üzerinde tesseract-ocr çalıştırılır
-  7) Çıkan sonuçta filtreleme yapılır:<br/>
+  2) Fotoğrafta YOLO modülü ile araç aranır
+  3) Bulunan araçta YOLO modülü ile plaka aranır
+  4) Bulunan plakanın konumu alınır
+  5) Plakanın olduğu yerler kırpılır
+  6) Kırpılan resimde işlem yapılır (Siyah beyaz yapma ve Thresh):
+  7) Kırpılmış plaka üzerinde tesseract-ocr çalıştırılır
+  8) Çıkan sonuçta filtreleme yapılır:<br/>
     A) Yanlışlıkla okunan noktalama işaretleri silinir<br/>
     B) Çıkan kombinasyonun -sayı-harf-sayı- şeklinde olduğu kontrol edilir:<br/>
        Örnek: B16ACL82 şeklinde okunan plaka 16ACL82 şekline dönüştürülür<br/>
     C) Plakadakı boşluklar silinir<br/>
-  8) Çıktı terminale yazdırılır
-  
-# Daha sonra yapılacaklar:
-  1) SQL database ile bağlantı kurulup plakanın sahaya giriş saati ve çıkış saati yazdırılacak
-  2) Whitelist ile sadece belli plakalar geldiğinde otomatik kapı açılacak
-
-
-#Uzaktan kontrol linki:
-  https://maker.ifttt.com/trigger/door_trigger/json/with/key/45MZeHwhX454RLs1GGu6d
+  9) Çıktı terminale yazdırılır
