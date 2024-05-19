@@ -1,7 +1,7 @@
 # Türk Plaka Okuyucu
 Türk plakalarını algılar okur ve yazı halinde çıktı verir 
 
-*Bu proje kişisel bir projedir ve tamamen ben tarafından hazırlanmıştır.*
+*Bu proje kişisel bir projedir, tamamen ben tarafından kişisel gelişim ve öğrenim amacıyla hazırlanmıştır.*
 # Ana dosya (Windows):
 [Predict_Windows_1.0.py](https://github.com/emrs6/TurkPlakaOkuyucu/blob/main/Predict_Windows_1.0.py)
 
