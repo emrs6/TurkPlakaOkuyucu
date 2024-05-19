@@ -1,6 +1,5 @@
 #Bu sürüm Windows bilgisayarlarda kullanım için oluşturuldu. GPU hızlandırıcı kullanır numpy gpu cuda sürümü gerekir 
 
- #import I2C_LCD_driver 
 from time import *
 import cv2
 import easyocr
