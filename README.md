@@ -10,9 +10,8 @@ Türk plakalarını algılar okur ve yazı halinde çıktı verir
   -Plaka bölümünü kırpar<br/>
   -TesseractOCR / EasyOCR ile yazıyı çıkartır<br/>
 
-# Gerekli kütüphaneler (Winows sürümü için):
-  -PyThorch(CUDA)
-  -os<br/>
+# Gerekli kütüphaneler (Windows sürümü için):
+  -PyThorch(CUDA)<br/>
   -time<br/>
   -cv2<br/>
   -easyocr<br/>
@@ -20,7 +19,6 @@ Türk plakalarını algılar okur ve yazı halinde çıktı verir
   -pandas<br/>
   -ultralytics<br/>
   -requests<br/>
-  -string<br/>
   -matplotlib<br/>
 >   Model https://drive.google.com/file/d/1CNQLLDu-SFhca1vGdjzTmwQoXcpq9ppQ/view?usp=sharing<br/>
 
@@ -32,7 +30,7 @@ Türk plakalarını algılar okur ve yazı halinde çıktı verir
   4) Bulunan plakanın konumu alınır
   5) Plakanın olduğu yerler kırpılır
   6) Kırpılan resimde işlem yapılır (Siyah beyaz yapma ve Thresh):
-  7) Kırpılmış plaka üzerinde tesseract-ocr çalıştırılır
+  7) Kırpılmış plaka üzerinde tesseract-ocr/easyocr çalıştırılır
   8) Çıkan sonuçta filtreleme yapılır:<br/>
     A) Yanlışlıkla okunan noktalama işaretleri silinir<br/>
     B) Çıkan kombinasyonun -sayı-harf-sayı- şeklinde olduğu kontrol edilir:<br/>
