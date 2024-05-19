@@ -1,6 +1,5 @@
 #Bu sürüm Windows bilgisayarlarda kullanım için oluşturuldu. GPU hızlandırıcı kullanır numpy gpu cuda sürümü gerekir 
 
-import os
  #import I2C_LCD_driver 
 from time import *
 import cv2
@@ -9,42 +8,15 @@ import numpy as np
 import pandas as pd
 from ultralytics import YOLO
 import requests
- #from picamera2 import Picamera2
- #from libcamera import controls
-import string
 import matplotlib.pyplot as plt
 
 print("kütüphaneler yüklendi")
- #mylcd = I2C_LCD_driver.lcd()
- #mylcd.lcd_clear()
- #mylcd.lcd_display_string("lbr done.", 1)
-
-nigh_threshold = 50
-# board = pyfirmata.Arduino('COM7')
-
 
 cap = cv2.VideoCapture("test.mp4")
- #picam2 = Picamera2()
-#config = picam2.create_still_configuration(lores={"size": (4608, 2592)}, display="lores")
- #config = picam2.create_still_configuration(lores={"size": (4608, 2592)}, display="lores", buffer_count=1)
-#config = picam2.create_still_configuration(lores={"size": (2592, 1944)}, display="lores")
-
- #picam2.configure(config)
- #picam2.set_controls({'Sharpness': 5, 'Contrast': 1.50, 'Saturation': 1, 'AeExposureMode': 1, 
- #                     "NoiseReductionMode": controls.draft.NoiseReductionModeEnum.Fast})
-
- #picam2.set_controls({"AfMode": controls.AfModeEnum.Continuous})
- #picam2.start()
-
-
-#cap.set(cv2.CAP_PROP_BUFFERSIZE, 1)  # Arabelleğe alma işlemini devre dışı bırak
-
 model = YOLO("best.pt")
 car_model = YOLO("yolov8n.pt")
-
 model.to('cuda')
 car_model.to('cuda')
-
 vehicles = [2, 3, 5, 7]
 offset = 17  # plakanın sınırlarını sol taraftan daraltmak için kullanılan değişken
 text_final = ""
@@ -53,9 +25,6 @@ cache = ""
 #cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 2592)
 reader = easyocr.Reader(['en'])
 print("parametreler tanımlandı")
- #mylcd.lcd_clear()
- #mylcd.lcd_display_string("prm done.", 1)
-
 
 # Definitions
 
@@ -100,7 +69,6 @@ def process2_1(imgraw):
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     denoised = cv2.bilateralFilter(gray, 9, 75, 75)
     denoised = cv2.blur(denoised, (5, 5))
-    # cropped_histo = cv2.equalizeHist(cropped_denoised)
     thresh = cv2.threshold(denoised,0,255,cv2.THRESH_BINARY+cv2.THRESH_OTSU)[1]
     thresh = cv2.bitwise_not(thresh)
     kernel = np.ones((5, 5), np.uint8)
@@ -197,7 +165,6 @@ def alternfunc(PlateImg):
         altern_gray_letter = cv2.cvtColor(altern_img_resized_, cv2.COLOR_BGR2GRAY)
         altern_noise_reduce_letter = cv2.bilateralFilter(altern_gray_letter, 9, 75, 75)
         altern_noise_reduce_letter = cv2.blur(altern_noise_reduce_letter, (5, 5))
-        #contrast_letter = cv2.convertScaleAbs(noise_reduce_letter, alpha=2, beta=0)
         altern_thresholed_letter = cv2.threshold(altern_noise_reduce_letter,0,255,cv2.THRESH_BINARY+cv2.THRESH_OTSU)[1]
         altern_thresholed_letter = cv2.bitwise_not(altern_thresholed_letter)
         altern_thresholed_letter = cv2.cvtColor(altern_thresholed_letter, cv2.COLOR_GRAY2BGR)
@@ -413,24 +380,11 @@ def alternfunc(PlateImg):
 # Kamera ile foto çek
 while True:
     ret, frame = cap.read()
-    #picam2.capture_file("predict.jpg")
-    
-    #frame = cv2.imread("predict.jpg")
-    
-    #img = cv2.imread(data_path)
-    
     if frame is None:
         print("Görüntü yüklenemedi")
         continue  # Bir sonraki döngüye geç
     else:
         img = frame.copy()
-    # aşağıdaki işlem gece görüşü
-    # blue_channel = img[:, :, 2]
-    # blue_ratio = np.sum(blue_channel) / (720 * 1280)
-    # print(blue_ratio)
-    # if blue_ratio < nigh_threshold:
-    #    nightimg = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-    #    eğer mavi değeri 40 tan düşük ise gece modunu açabilir diye dursun
     reduced_image = resize_image_width(img, 768)
 
     car_detections = car_model(source=reduced_image, show=False)[0]
@@ -479,12 +433,10 @@ while True:
                         h = h + 15
                         license_plate = car[int(yc - (h / 2)):int(yc + (h / 2)),
                                         int(xc - (w / 2)) + offset:int(xc + (w / 2)), :].copy()
-                        #cv2.imwrite(input_dir + "/yolo.jpg", license_plate)
                         yolo = license_plate.copy()
                         alternPredict = license_plate.copy()
                         
 
-                    #imgraw = cv2.imread(input_dir + "/yolo.jpg")
                     imgraw = yolo.copy()
                     
                     if not imgraw.shape[1] >= 85:
@@ -620,8 +572,6 @@ while True:
                         reversed_rct = cv2.bitwise_not(black_rectangle2)
 
                         print("okunuyor")
-                        #mylcd.lcd_clear()
-                        #mylcd.lcd_display_string("reading", 1)
                         # okuma
                         blocklist = '!"#%&\'()*+,-.:;<=>?@[]^_`{|}~ '
                         data = reader.readtext(reversed_rct, paragraph=True, blocklist=blocklist)
@@ -817,17 +767,9 @@ while True:
                                 print("Plaka Kombinasyonu doğru")
                                 print("Tahmini plaka:")
                                 print(formatted_plate)
-                                #mylcd.lcd_clear()
-                                #mylcd.lcd_display_string(formatted_plate, 1)
-                                
-                                if formatted_plate != cache and formatted_plate == "16ACJ100":
-                                    webhook_url = "https://maker.ifttt.com/trigger/door_trigger/json/with/key/45MZeHwhX454RLs1GGu6d"
-                                    trigger_webhook(webhook_url)
-                                    cache = formatted_plate
+
                             else:
                                 print("doğrulanamadı")
-                                #mylcd.lcd_clear()
-                                #mylcd.lcd_display_string("hata", 1)
                         else:
                             print("-----------------------algılanamadı alternatif işlemeya atılıyor--------------------------")
                             alternedPlateText = alternfunc(alternPredict)
@@ -837,5 +779,3 @@ while True:
                     continue
         else:
             print("araç algılanamadı")
-            #mylcd.lcd_clear()
-
