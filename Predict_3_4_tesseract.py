@@ -12,6 +12,17 @@ from libcamera import controls
 import matplotlib.pyplot as plt
 import string
 
+# .env dosyası varsa oku (isteğe bağlı: pip install python-dotenv)
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except ImportError:
+    pass
+
+# IFTTT Webhooks ayarları koda yazılmaz, ortam değişkenlerinden okunur (bkz. .env.example)
+IFTTT_WEBHOOK_KEY = os.environ.get("IFTTT_WEBHOOK_KEY", "")
+IFTTT_EVENT = os.environ.get("IFTTT_EVENT") or "door_trigger"
+
 print("kütüphaneler yüklendi")
 mylcd = I2C_LCD_driver.lcd()
 mylcd.lcd_clear()
@@ -65,6 +76,13 @@ def trigger_webhook(webhook_url):
             print(response.text)  # Yanıttaki içeriği yazdır
     except requests.exceptions.RequestException as e:
         print(f"An error occurred while sending the webhook request: {e}")
+
+
+def ifttt_webhook_url():
+    if not IFTTT_WEBHOOK_KEY:
+        print("IFTTT_WEBHOOK_KEY tanımlı değil, webhook atlandı.")
+        return None
+    return f"https://maker.ifttt.com/trigger/{IFTTT_EVENT}/json/with/key/{IFTTT_WEBHOOK_KEY}"
 
 def str_to_nmb(text):
     
@@ -601,9 +619,10 @@ while True:
                                 mylcd.lcd_clear()
                                 mylcd.lcd_display_string(formatted_plate, 1)
                                 
-                                if formatted_plate != cache and formatted_plate == "16ACJ100":
-                                    webhook_url = "https://maker.ifttt.com/trigger/door_trigger/json/with/key/45MZeHwhX454RLs1GGu6d"
-                                    trigger_webhook(webhook_url)
+                                if formatted_plate != cache and formatted_plate == "16XYZ123":  # örnek plaka, kendi plakanızla değiştirin
+                                    webhook_url = ifttt_webhook_url()
+                                    if webhook_url:
+                                        trigger_webhook(webhook_url)
                                     cache = formatted_plate
                             else:
                                 print("doğrulanamadı")
