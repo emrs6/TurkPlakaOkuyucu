@@ -387,7 +387,7 @@ while True:
                     print("Plaka doğrulandı")
                     text_final = remove_space2
                     print(text_final)
-                    if text_final == "16RAM14" or "16SBL55":
+                    if text_final == "16XAB12" or "16XCD34":
                         # board.digital[13].write(1)
                         # time.sleep(1)
                         # board.digital[13].write(0)

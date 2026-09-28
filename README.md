@@ -34,6 +34,14 @@ Türk plakalarını algılar okur ve yazı halinde çıktı verir
   8) Çıkan sonuçta filtreleme yapılır:<br/>
     A) Yanlışlıkla okunan noktalama işaretleri silinir<br/>
     B) Çıkan kombinasyonun -sayı-harf-sayı- şeklinde olduğu kontrol edilir:<br/>
-       Örnek: B16ACL82 şeklinde okunan plaka 16ACL82 şekline dönüştürülür<br/>
+       Örnek: B16XYZ123 şeklinde okunan plaka 16XYZ123 şekline dönüştürülür<br/>
     C) Plakadakı boşluklar silinir<br/>
   9) Çıktı terminale yazdırılır
+
+# IFTTT Webhook ayarı (Raspberry Pi sürümleri):
+  Predict_3_x dosyaları, izinli plaka okunduğunda IFTTT Webhooks ile kapıyı tetikler. Webhook anahtarı koda yazılmaz, ortam değişkeninden okunur:<br/>
+  1) `.env.example` dosyasını `.env` adıyla kopyalayın ve `IFTTT_WEBHOOK_KEY` değerini doldurun<br/>
+  2) `.env` dosyasının otomatik okunması için `pip install python-dotenv` kurun (ya da değişkeni terminalde `export IFTTT_WEBHOOK_KEY=...` ile tanımlayın)<br/>
+  3) `IFTTT_EVENT` boş bırakılırsa `door_trigger` kullanılır<br/>
+  4) Koddaki örnek plakayı (`16XYZ123`) kendi izinli plakanızla değiştirin<br/>
+  *`IFTTT_WEBHOOK_KEY` tanımlı değilse script çalışmaya devam eder, yalnızca webhook çağrısı atlanır. `.env` dosyasını asla commit etmeyin.*
